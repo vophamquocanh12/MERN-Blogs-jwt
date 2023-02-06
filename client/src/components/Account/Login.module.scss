@@ -1,0 +1,43 @@
+.box-wrapper{
+    width: 400px;
+    margin: auto;
+    box-shadow: 5px 2px 5px 2px rgb(0 0 0/0.6);
+}
+
+.image{
+    width: 220px;
+    margin: auto;
+    display: flex;
+    padding: 50px 0 0;
+}
+.box-content{
+    padding: 25px 35px;
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+
+    & > .text-field, & > .btn, & > p{
+        margin-top: 20px;
+    }
+    
+}
+
+.btn-login{
+    text-transform: none !important;
+    background-color: #FB641B !important;
+    color: #fff !important;
+    height: 48px !important;
+    border-radius: 2px !important;
+}
+.text{
+    color: #878787;
+    font-size: 16px;
+}
+.btn-signup{
+    text-transform: none !important;
+    background-color: #fff !important;
+    color: #2874f0 !important;
+    height: 48px !important;
+    border-radius: 2px !important;
+    box-shadow: 0 2px 4px 0 rgb(0 0 0/20%);
+}
