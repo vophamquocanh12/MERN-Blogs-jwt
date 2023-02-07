@@ -1,42 +1,54 @@
-const { User } = require('../model/model')
+const { User, Token } = require('../model/model')
 const bcrypt = require('bcrypt')
+const jwt = require('jsonwebtoken')
+const dotenv = require('dotenv')
 
+dotenv.config()
 
 const UserController = {
-    signupUser: async (req, res) => {
-        try {
-            const {name, username, password, confirmPassword } = req.body
-            const existUsername = await User.findOne({username})
-            if(!name  || !password){
-                res.status(400).json({
-                    message: 'Missing name/username/password!'
-                })
-            }else if(!confirmPassword){
-                res.status(400).json({
-                    message: 'Missing confirm password'
-                })
-            }else if(existUsername){
-                res.status(409).json({
-                    message: 'Username already taken!'
-                })
-            }else if(password !== confirmPassword){
-                res.status(401).json({
-                    message: 'Confirm password do not match!'
-                })
-            }else{
-                const salt = 10
-                const hash = bcrypt.hashSync(req.password, salt)
-                req.body.password = hash
+  signupUser: async (request, response) => {
+    try {
+      const hashedPassword = await bcrypt.hash(request.body.password, 10)
 
-                const user = new User(req.body)
-                await user.save()
-                res.status(201).json({
-                    message: 'User sign up successfully!'
-                })
-            }
-        } catch (error) {
-            res.status(500).json(error.message)
-        }
+      const user = { username: request.body.username, name: request.body.name, password: hashedPassword }
+
+      const newUser = new User(user)
+      await newUser.save()
+      response.status(200).json({
+        message: 'Sign up successful!',
+      })
+    } catch (error) {
+      response.status(500).json({
+        errorMessage: 'Error while signing up user',
+      })
     }
+  },
+  loginUser: async (request, response) => {
+    let user = await User.findOne({ username: request.body.username })
+    if (!user) {
+      return response.status(400).json({ message: 'Username does not match' })
+    }
+
+    try {
+      const match = await bcrypt.compare(request.body.password, user.password)
+      console.log(match)
+      if (match) {
+        console.log('1');
+        const accessToken = jwt.sign(user.toJSON(), process.env.ACCESS_SECRET_KEY, { expiresIn: '15m' })
+        const refreshToken = jwt.sign(user.toJSON(), process.env.REFRESH_SECRET_KEY)
+
+        const newToken = new Token({token: refreshToken})
+        await newToken.save()
+        
+        response
+          .status(200)
+          .json({ accessToken: accessToken, refreshToken: refreshToken, name: user.name, username: user.username })
+      } else {
+        response.status(400).json({ message: 'Password does not match' })
+      }
+    } catch (error) {
+      response.status(500).json({ message: 'Error while login the user' })
+    }
+  },
 }
 module.exports = UserController

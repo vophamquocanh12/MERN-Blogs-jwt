@@ -19,8 +19,9 @@ mongoose.connect(process.env.MONGODB_URL, () => {
   console.log('===> Connected to MongoDB <===')
 })
 
-app.use(bodyParser.json({ limit: '50mb' }))
 app.use(cors())
+app.use(bodyParser.json({ extended: true }))
+app.use(bodyParser.urlencoded({ extended: true }))
 app.use(morgan('common'))
 // morgan 200 is success
 
