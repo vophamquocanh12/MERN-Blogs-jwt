@@ -31,10 +31,8 @@ const UserController = {
 
     try {
       const match = await bcrypt.compare(request.body.password, user.password)
-      console.log(match)
       if (match) {
-        console.log('1');
-        const accessToken = jwt.sign(user.toJSON(), process.env.ACCESS_SECRET_KEY, { expiresIn: '15m' })
+        const accessToken = jwt.sign(user.toJSON(), process.env.ACCESS_SECRET_KEY, { expiresIn: '30m' })
         const refreshToken = jwt.sign(user.toJSON(), process.env.REFRESH_SECRET_KEY)
 
         const newToken = new Token({token: refreshToken})
